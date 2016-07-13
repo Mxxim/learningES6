@@ -9,6 +9,6 @@ gulp.task('default',() => {
             .pipe(babel({
                 presets: ['es2015']
             }))
-            .pipe(gulp.dest('dist'));
+            .pipe(gulp.dest('dist-gulp'));
 
 });
