@@ -36,7 +36,7 @@ inst.prop = 123;    // setter:123
 console.log(inst.prop); // getter
 
 /**
- * Class的静态方法
+ * Class的静态方法：类中定义的方法前面加个 static 关键字。
  * 类中定义的方法都会被实例继承，如果在一个方法前面加上 static 关键字，该方法就不会被实例继承。
  * 总之：1、实例继承类的非静态方法。2、子类可以继承父类的静态方法。3、静态方法也可以从 super 对象上调用。
  * */
@@ -54,6 +54,30 @@ class BarChild extends Bar{
 }
 console.log(BarChild.classMethod());  // hello
 
+/**
+ * Class的静态属性和实例属性。（注：Class内部只有静态方法，没有静态属性，Class的构造函数中定义的是【实例属性】）
+ * 静态属性：指Class本身的属性，而不是定义在实例对象（this）上的属性。
+ * ES7提案中可以用等式在类的内部定义类的【实例属性】。比如：
+ * class MyClass{
+ *      myProp = 42;
+ *
+ *      constructor(){
+ *          console.log(this.myProp);   // 42
+ *      }
+ * }
+ * */
+class MyClass2{}
+MyClass2.prop = 2;  // ES6 中定义类的静态属性
+console.log(MyClass2.prop); // 2
+
+// ES7 中定义类的静态属性，在node v6下报错
+//class MyClass3{
+//    static prop = 42;
+//    constructor(){
+//        console.log(MyClass3.prop); // 42
+//    }
+//}
+//new MyClass3();
 
 /**
  * Class的 Generator 方法
@@ -76,3 +100,54 @@ for(let x of new Foo('hello','world')){
 }
 // hello
 // world
+
+/**
+ * new.target 属性：返回new命令作用于的那个构造函数。Class内部调用 new.target 会返回当前Class。
+ * 可以用来确定构造函数是怎么调用的。
+ * 注意：子类继承父类时，new.target 返回子类。利用这个特点，可以写出不能独立使用、必须继承后才能使用的类。
+ * */
+// 另一种写法
+function Person(name) {
+    if (new.target === Person) {
+        this.name = name;
+    } else {
+        throw new Error('必须使用new生成实例');
+    }
+}
+
+var person = new Person('张三'); // 正确
+//var notAPerson = Person.call(person, '张三');  // 报错
+
+class Father{
+    constructor(){
+        console.log(new.target === Father);
+    }
+}
+class Child extends Father{
+    constructor(){
+        super();
+    }
+}
+new Father();   // true
+new Child();    // false
+
+// 让某个类无法单独使用，只能被继承
+class Shape {
+    constructor() {
+        if (new.target === Shape) {
+            throw new Error('本类不能实例化');
+        }
+    }
+}
+
+class Rectangle extends Shape {
+    constructor(length, width) {
+        super();
+        // ...
+    }
+}
+
+//var x = new Shape();  // 报错
+var y = new Rectangle(3, 4);  // 正确
+
+
